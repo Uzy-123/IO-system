@@ -72,32 +72,26 @@
     <div class="window-close" onclick="history.back()">×</div>
     <div class="container">
         <h1 id="title">Chargement...</h1>
-        <img id="image" src="" alt="Image" style="display: none;">
         <div id="content" class="content">Chargement...</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         const params = new URLSearchParams(window.location.search);
-        const folderName = params.get('name');
-        const mdUrl = params.get('md');
-        const imgUrl = params.get('img');
+        const fullFolderName = params.get('name');
+        const folderName = fullFolderName.replace('.inf', '');
+        const basePath = `https://raw.githubusercontent.com/Uzy-123/IO-system/main/ioFolder/${fullFolderName}`;
+        const mdUrl = `${basePath}/inf.md`;
 
         async function loadContent() {
             try {
                 document.getElementById('title').textContent = folderName;
-                
-                if (imgUrl) {
-                    const img = document.getElementById('image');
-                    img.src = imgUrl;
-                    img.style.display = 'block';
-                }
 
                 const response = await fetch(mdUrl);
+                if (!response.ok) throw new Error('Fichier non trouvé');
                 const markdown = await response.text();
                 document.getElementById('content').innerHTML = marked(markdown);
             } catch (err) {
-                document.getElementById('content').innerHTML = 'Erreur lors du chargement du contenu';
                 console.error('Erreur:', err);
             }
         }
