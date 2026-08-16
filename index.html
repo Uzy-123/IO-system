@@ -312,7 +312,7 @@
                             // Créer la card
                             const card = document.createElement('div');
                             card.className = 'card card-container';
-                            card.onclick = () => openInfoPage(folderName, mdFile.download_url, imgFile.download_url);
+                            card.onclick = () => openInfoPage(folder.name);
                             
                             const header = document.createElement('div');
                             header.className = 'card-header';
@@ -341,8 +341,8 @@
             }
         }
 
-        function openInfoPage(title, mdUrl, imgUrl) {
-            const detailUrl = `detail.html?name=${encodeURIComponent(title)}&md=${encodeURIComponent(mdUrl)}&img=${encodeURIComponent(imgUrl)}`;
+        function openInfoPage(fullFolderName) {
+            const detailUrl = `detail.html?name=${fullFolderName}`;
             window.location.href = detailUrl;
         }
 
