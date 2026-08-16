@@ -84,22 +84,33 @@
         const basePath = `https://raw.githubusercontent.com/Uzy-123/IO-system/main/ioFolder/${fullFolderName}`;
         const mdUrl = `${basePath}/inf.md`;
 
-        async function loadContent() {
+        function loadContent() {
             try {
                 document.getElementById('title').textContent = folderName;
 
-                const response = await fetch(mdUrl);
-                if (!response.ok) throw new Error('Fichier non trouvé');
-                const markdown = await response.text();
-                document.getElementById('content').innerHTML = marked(markdown);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
+                fetch(mdUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Erreur ${response.status}: ${mdUrl}`);
+                        return response.text();
+                    })
+                    .then(markdown => {
+                        const html = marked.parse(markdown);
+                        document.getElementById('content').innerHTML = html;
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('content').style.display = 'block';
+                    })
+                    .catch(err => {
+                        console.error('Erreur:', err);
+                        document.getElementById('loading').textContent = `Erreur: ${err.message}`;
+                    });
             } catch (err) {
                 console.error('Erreur:', err);
+                document.getElementById('loading').textContent = `Erreur: ${err.message}`;
             }
         }
 
-        loadContent();
+        // Attendre que marked charge
+        setTimeout(loadContent, 500);
     </script>
 </body>
 </html>
