@@ -1,28 +1,37 @@
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
-text
+Start Imagined Order system
+Search Perfect Order Geno Config
+
+==================================================
+ImaginedOrderSys.exe
+https://sys.io.geno/id?:078299zii9z100sbAB/IO.com/slone
+==================================================
+
+[ACCESS] C:/ioFolder/Geno.inf
+[UNAUTHORIZED] C:/ioFolder/hidden/
+[ACCESS] C:/io/Folder/Slone.inf
+
+[UNAUTHORIZED] C:/seven/Folder/
+[FORCE] Force C:/seven/Folder/
+[FORCED]
+[ACCESS] C:/seven/Folder/Origin.inf
+[ACCESS] C:/seven/Folder/Fundation.inf
+[ACCESS] C:/seven/Folder/Visitor.inf
+[ACCESS] C:/seven/Folder/Scientist.inf
+[ACCESS] C:/seven/Folder/Paradigm.inf
+[ACCESS] C:/seven/Folder/Sisters.inf
+[ACCESS] C:/seven/Folder/Sisters/Imagined.inf
+[ACCESS] C:/seven/Folder/Sisters/Order.inf
+
+[SEARCH] Search G:/externalDisk
+[FOUND] Found G:/sevenServer
+[AUTHORIZED] Access Authorized
+
+[ACCESS] G:/sevenServer/seven/Folder/Origin.inf
+[ACCESS] G:/sevenServer/seven/Folder/Visitor.inf
+[ACCESS] G:/sevenServer/seven/Folder/Scientist.inf
+[ACCESS] G:/sevenServer/seven/Folder/Paradigm.inf
+[ACCESS] G:/sevenServer/seven/Folder/Sister/
+[ACCESS] G:/sevenServer/seven/Folder/ParadigmReality659.inf
+[ACCESS] G:/sevenServer/neoseven/Folder/Innovation.inf
+[ACCESS] G:/sevenServer/neoseven/Folder/Jones.inf
+[ACCESS] G:/sevenServer/neoseven/Folder/Prophecy.inf
