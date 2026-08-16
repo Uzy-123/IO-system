@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortnite</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: monospace;
+            overflow: hidden;
+        }
+
+        #starttext-display {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #00ff00;
+            z-index: 9999;
+            font-size: 14px;
+            line-height: 1.2;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+            display: block;
+            text-align: left;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #loading.hidden {
+            display: none;
+        }
+
+        #loading-logo {
+            width: 400px;
+            height: 400px;
+            margin-bottom: 50px;
+        }
+
+        #loading-text {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 1.2em;
+        }
+
+        #content {
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #001230, #003280);
+            padding: 20px;
+            display: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        @media (max-width: 768px) {
+            #content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 769px) {
+            #content {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .card {
+            background-color: #00072A;
+            border: 2px solid #fff;
+            border-radius: 20px;
+            padding: 0;
+            margin: 20px 0;
+            max-width: 200px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #666;
+            padding: 0;
+            height: 0;
+            padding-bottom: 56.25%;
+            position: relative;
+            width: 100%;
+        }
+
+        .card-body {
+            background-color: #00072A;
+            padding: 20px;
+        }
+
+        .card-name {
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .card-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9997;
+            display: none;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content {
+            background: linear-gradient(to bottom, #001230, #003280);
+            color: #fff;
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 2em;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        #content.visible {
+            display: block;
+        }
+
+        #starttext {
+            color: #fff;
+            font-size: 0.9em;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            float: left;
+            display: none;
+        }
+
+        #starttext.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="starttext-display"></div>
+    <div id="loading" class="hidden">
+        <img id="loading-logo" src="https://raw.githubusercontent.com/Uzy-123/IO-system/main/StartLogo.png" alt="Loading">
+        <div id="loading-text">Loading</div>
+    </div>
+    <div id="content">
+        <div id="starttext"></div>
+        <div class="card">
+            <div class="card-header">
+            </div>
+            <div class="card-body">
+                <h3 class="card-name">name</h3>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-content" id="modal-content">
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const matrixDiv = document.getElementById('starttext-display');
+        let charList = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?\nABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?\nABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+        let text = '';
+        let charIndex = 0;
+        const maxChars = Math.floor(window.innerWidth / 8);
+        const fallbackChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        // Charger le fichier et commencer l'animation
+        fetch('https://raw.githubusercontent.com/Uzy-123/IO-system/main/StartText.txt')
+            .then(response => response.text())
+            .then(data => {
+                if (data && data.length > 0) {
+                    charList = data;
+                }
+                startAnimation();
+            })
+            .catch(err => {
+                console.error('Erreur:', err);
+                startAnimation();
+            });
+
+        function startAnimation() {
+            let charInterval;
+            let textFinished = false;
+            
+            function addChar() {
+                if (charIndex < charList.length) {
+                    text += charList[charIndex];
+                    charIndex++;
+                    matrixDiv.textContent = text;
+                    
+                    // Scroll automatique si le texte dépasse la moitié
+                    if (matrixDiv.scrollHeight > window.innerHeight / 2) {
+                        matrixDiv.scrollTop = matrixDiv.scrollHeight;
+                    }
+                } else if (!textFinished) {
+                    textFinished = true;
+                    console.log('Texte fini, attente 5sec...');
+                    clearInterval(charInterval);
+                    
+                    // Attendre 5 secondes avant le loading
+                    setTimeout(() => {
+                        console.log('Affichage du loading...');
+                        matrixDiv.style.display = 'none';
+                        
+                        // Afficher l'écran de loading
+                        const loadingDiv = document.getElementById('loading');
+                        loadingDiv.classList.remove('hidden');
+                        
+                        // Animer le texte "Loading"
+                        const loadingText = document.getElementById('loading-text');
+                        let loadingState = 0;
+                        const loadingStates = ['Loading', 'Loading.', 'Loading..', 'Loading...'];
+                        
+                        let loadingInterval = setInterval(() => {
+                            loadingText.textContent = loadingStates[loadingState];
+                            loadingState = (loadingState + 1) % 4;
+                        }, 500);
+                        
+                        // Masquer le loading après 5 secondes et afficher la page
+                        setTimeout(() => {
+                            console.log('Fin du loading, affichage page...');
+                            clearInterval(loadingInterval);
+                            loadingDiv.classList.add('hidden');
+                            document.getElementById('content').style.display = 'grid';
+                            loadCards();
+                        }, 5000);
+                    }, 5000);
+                }
+            }
+
+            charInterval = setInterval(addChar, 10);
+        }
+
+        // Charger les cards depuis GitHub
+        async function loadCards() {
+            try {
+                const response = await fetch('https://api.github.com/repos/Uzy-123/IO-system/contents/ioFolder');
+                const folders = await response.json();
+
+                const contentDiv = document.getElementById('content');
+                
+                for (const folder of folders) {
+                    if (folder.type === 'dir' && folder.name.endsWith('.inf')) {
+                        const folderName = folder.name.replace('.inf', '');
+                        
+                        // Récupérer les fichiers du dossier
+                        const fileResponse = await fetch(`https://api.github.com/repos/Uzy-123/IO-system/contents/ioFolder/${folder.name}`);
+                        const files = await fileResponse.json();
+                        
+                        const imgFile = files.find(f => f.name === 'img.jpg');
+                        const mdFile = files.find(f => f.name === 'inf.md');
+                        
+                        if (imgFile && mdFile) {
+                            // Créer la card
+                            const card = document.createElement('div');
+                            card.className = 'card card-container';
+                            card.onclick = () => openInfoPage(folderName, mdFile.download_url, imgFile.download_url);
+                            
+                            const header = document.createElement('div');
+                            header.className = 'card-header';
+                            
+                            const img = document.createElement('img');
+                            img.className = 'card-image';
+                            img.src = imgFile.download_url;
+                            
+                            header.appendChild(img);
+                            
+                            const body = document.createElement('div');
+                            body.className = 'card-body';
+                            const name = document.createElement('h3');
+                            name.className = 'card-name';
+                            name.textContent = folderName;
+                            body.appendChild(name);
+                            
+                            card.appendChild(header);
+                            card.appendChild(body);
+                            contentDiv.appendChild(card);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Erreur chargement cards:', err);
+            }
+        }
+
+        function openInfoPage(title, mdUrl, imgUrl) {
+            const detailUrl = `detail.html?name=${encodeURIComponent(title)}&md=${encodeURIComponent(mdUrl)}&img=${encodeURIComponent(imgUrl)}`;
+            window.location.href = detailUrl;
+        }
+
+        // Charger les cards après le loading
+        // À appeler après que le loading disparaisse
+    </script>
+</body>
+</html>
