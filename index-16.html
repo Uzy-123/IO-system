@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortnite Encyclopédie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        #starttext-display {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            color: #00ff00;
+            z-index: 9999;
+            font-size: 14px;
+            line-height: 1.2;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+            display: block;
+            text-align: left;
+            font-family: monospace;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #loading.hidden {
+            display: none;
+        }
+
+        #loading-logo {
+            width: 400px;
+            height: 400px;
+            margin-bottom: 50px;
+        }
+
+        #loading-text {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div id="starttext-display"></div>
+    <div id="loading" class="hidden">
+        <img id="loading-logo" src="https://raw.githubusercontent.com/Uzy-123/IO-system/main/StartLogo.png" alt="Loading">
+        <div id="loading-text">Loading</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const matrixDiv = document.getElementById('starttext-display');
+        let charList = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?\nABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?\nABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+        let text = '';
+        let charIndex = 0;
+        const fallbackChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        fetch('https://raw.githubusercontent.com/Uzy-123/IO-system/main/StartText.txt')
+            .then(response => response.text())
+            .then(data => {
+                if (data && data.length > 0) {
+                    charList = data;
+                }
+                startAnimation();
+            })
+            .catch(err => {
+                console.error('Erreur:', err);
+                startAnimation();
+            });
+
+        function startAnimation() {
+            let charInterval;
+            let textFinished = false;
+            
+            function addChar() {
+                if (charIndex < charList.length) {
+                    text += charList[charIndex];
+                    charIndex++;
+                    matrixDiv.textContent = text;
+                    
+                    if (matrixDiv.scrollHeight > window.innerHeight / 2) {
+                        matrixDiv.scrollTop = matrixDiv.scrollHeight;
+                    }
+                } else if (!textFinished) {
+                    textFinished = true;
+                    clearInterval(charInterval);
+                    
+                    setTimeout(() => {
+                        matrixDiv.style.display = 'none';
+                        
+                        const loadingDiv = document.getElementById('loading');
+                        loadingDiv.style.display = 'flex';
+                        
+                        const loadingText = document.getElementById('loading-text');
+                        let loadingState = 0;
+                        const loadingStates = ['Loading', 'Loading.', 'Loading..', 'Loading...'];
+                        
+                        let loadingInterval = setInterval(() => {
+                            loadingText.textContent = loadingStates[loadingState];
+                            loadingState = (loadingState + 1) % 4;
+                        }, 500);
+                        
+                        setTimeout(() => {
+                            clearInterval(loadingInterval);
+                            window.location.href = 'home.html';
+                        }, 5000);
+                    }, 5000);
+                }
+            }
+
+            charInterval = setInterval(addChar, 10);
+        }
+    </script>
+</body>
+</html>

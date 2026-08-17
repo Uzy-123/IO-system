@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail</title>
+    <style>
+        body {
+            background: linear-gradient(180deg, #001230 0%, #003280 100%);
+            background-attachment: fixed;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .window-close {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #c00000, #ff0000);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            z-index: 1000;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            margin-top: 60px;
+        }
+
+        img {
+            max-width: 100%;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+
+        .content {
+            line-height: 1.6;
+            font-size: 1em;
+        }
+
+        a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="window-close" onclick="history.back()">×</div>
+    <div class="container">
+        <h1 id="title"></h1>
+        <div id="info" style="color: #aaa; font-size: 0.9em; font-family: monospace; margin-bottom: 20px;"></div>
+        <div id="loading" style="color: #aaa;">Chargement...</div>
+        <div id="content" class="content" style="display: none;"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const fullFolderName = params.get('name');
+        const folderName = fullFolderName.replace('.inf', '');
+        const basePath = `https://raw.githubusercontent.com/Uzy-123/IO-system/main/ioFolder/${fullFolderName}`;
+        const mdUrl = `${basePath}/inf.md`;
+
+        function loadContent() {
+            try {
+                document.getElementById('title').textContent = folderName;
+
+                // Charger le JSON
+                const jsonUrl = `${basePath}/inf.json`;
+                fetch(jsonUrl)
+                    .then(r => r.json())
+                    .then(data => {
+                        const affiliation = data.affiliation || 'Unknown';
+                        const level = data.lvl || 'unknown';
+                        document.getElementById('info').textContent = `[${affiliation}] //${level}//`;
+                    })
+                    .catch(err => console.error('JSON:', err));
+
+                // Charger le Markdown
+                fetch(mdUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Erreur ${response.status}: ${mdUrl}`);
+                        return response.text();
+                    })
+                    .then(markdown => {
+                        const html = marked.parse(markdown);
+                        document.getElementById('content').innerHTML = html;
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('content').style.display = 'block';
+                    })
+                    .catch(err => {
+                        console.error('Erreur:', err);
+                        document.getElementById('loading').textContent = `Erreur: ${err.message}`;
+                    });
+            } catch (err) {
+                console.error('Erreur:', err);
+                document.getElementById('loading').textContent = `Erreur: ${err.message}`;
+            }
+        }
+
+        // Attendre que marked charge
+        setTimeout(loadContent, 500);
+    </script>
+</body>
+</html>

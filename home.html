@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortnite Encyclopédie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #001230, #003280);
+            color: #fff;
+        }
+
+        #content {
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #001230, #003280);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-content: start;
+        }
+
+        @media (max-width: 768px) {
+            #content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 769px) {
+            #content {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .card {
+            background-color: #00072A;
+            border: 2px solid #fff;
+            border-radius: 20px;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .card-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .card-header {
+            background-color: #666;
+            padding: 0;
+            height: 0;
+            padding-bottom: 56.25%;
+            position: relative;
+            width: 100%;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .card-body {
+            background-color: #00072A;
+            padding: 20px;
+        }
+
+        .card-name {
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .card-info {
+            color: #aaa;
+            font-size: 0.8em;
+            margin: 5px 0 0 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="content"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        async function loadCards() {
+            try {
+                const response = await fetch('https://api.github.com/repos/Uzy-123/IO-system/contents/ioFolder');
+                const folders = await response.json();
+
+                const contentDiv = document.getElementById('content');
+                
+                for (const folder of folders) {
+                    if (folder.type === 'dir' && folder.name.endsWith('.inf')) {
+                        const folderName = folder.name.replace('.inf', '');
+                        
+                        const fileResponse = await fetch(`https://api.github.com/repos/Uzy-123/IO-system/contents/ioFolder/${folder.name}`);
+                        const files = await fileResponse.json();
+                        
+                        const imgFile = files.find(f => f.name === 'img.jpg');
+                        const jsonFile = files.find(f => f.name === 'inf.json');
+                        
+                        if (jsonFile && imgFile) {
+                            fetch(jsonFile.download_url)
+                                .then(r => r.json())
+                                .then(data => {
+                                    const affiliation = data.affiliation || 'Unknown';
+                                    const level = data.lvl || 'unknown';
+                                    
+                                    const card = document.createElement('div');
+                                    card.className = 'card card-container';
+                                    card.onclick = () => openInfoPage(folder.name);
+                                    
+                                    const header = document.createElement('div');
+                                    header.className = 'card-header';
+                                    
+                                    const img = document.createElement('img');
+                                    img.className = 'card-image';
+                                    img.src = imgFile.download_url;
+                                    
+                                    header.appendChild(img);
+                                    
+                                    const body = document.createElement('div');
+                                    body.className = 'card-body';
+                                    const name = document.createElement('h3');
+                                    name.className = 'card-name';
+                                    name.textContent = folderName;
+                                    
+                                    const info = document.createElement('p');
+                                    info.className = 'card-info';
+                                    info.textContent = `[${affiliation}] //${level}//`;
+                                    
+                                    body.appendChild(name);
+                                    body.appendChild(info);
+                                    
+                                    card.appendChild(header);
+                                    card.appendChild(body);
+                                    contentDiv.appendChild(card);
+                                })
+                                .catch(err => console.error('Erreur JSON:', err));
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Erreur chargement cards:', err);
+            }
+        }
+
+        function openInfoPage(fullFolderName) {
+            const detailUrl = `detail.html?name=${fullFolderName}`;
+            window.location.href = detailUrl;
+        }
+
+        loadCards();
+    </script>
+</body>
+</html>
